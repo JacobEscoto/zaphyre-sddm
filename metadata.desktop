@@ -1,0 +1,11 @@
+[SddmGreeterTheme]
+Name=Zaphyre SDDM
+Description=Modern and clean SDDM theme
+Author=JacobEscoto
+License=MIT
+Type=sddm-theme
+Version=1.0
+ConfigFile=theme.conf
+MainScript=Main.qml
+QtVersion=6
+X-SDDM-Theme-InterfaceVersion=2
