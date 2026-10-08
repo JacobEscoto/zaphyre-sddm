@@ -47,10 +47,24 @@ Rectangle {
         transparentBorder: false
     }
 
-    Clock {
-        id: mainClock
-        anchors.centerIn: parent
-        backgroundSource: config.background
-        fontFamily: root.rubikBoldFont
+    Column {
+        id: mainContainer
+        anchors.left: parent.left
+        anchors.leftMargin: 80
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: 24
+
+        Clock {
+            id: mainClock
+            anchors.horizontalCenter: parent.horizontalCenter
+            backgroundSource: config.background
+            fontFamily: root.rubikBoldFont
+        }
+
+        DateLabel {
+            id: mainDate
+            anchors.horizontalCenter: parent.horizontalCenter
+            fontFamily: root.rubikMediumFont
+        }
     }
 }

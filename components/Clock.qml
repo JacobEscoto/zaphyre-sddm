@@ -2,6 +2,8 @@ import QtQuick
 
 Item {
     id: clock
+    implicitWidth: timeRow.implicitWidth
+    implicitHeight: timeRow.implicitHeight
 
     property string backgroundSource: ""
     property color defaultTimeColor: config.textColor
@@ -13,8 +15,10 @@ Item {
         var hours = date.getHours();
         var mins = date.getMinutes();
 
+        var is24hr = (typeof config !== "undefined" && config.use24HourClock === "true");
+
         // If 24-hour is not true, transform to 12-hour format
-        if (config.use24HourClock !== "true") {
+        if (!is24hr) {
             hours = hours % 12;
             if (hours === 0) {
                 hours = 12;
@@ -32,6 +36,7 @@ Item {
     }
 
     Row {
+        id: timeRow
         anchors.centerIn: parent
         spacing: 10
 
