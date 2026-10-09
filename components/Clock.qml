@@ -6,7 +6,7 @@ Item {
     implicitHeight: timeRow.implicitHeight
 
     property string backgroundSource: ""
-    property color defaultTimeColor: config.textColor
+    property color timeColor: "#CDD6F4"
     property string fontFamily: "Rubik"
     property string timeStr: ""
 
@@ -44,7 +44,7 @@ Item {
             spacing: -70
             Text {
                 text: clock.timeStr.substring(0, 2)
-                color: clock.defaultTimeColor
+                color: clock.timeColor
                 font.pixelSize: 200
                 font.family: clock.fontFamily
                 font.weight: Font.Bold
@@ -54,7 +54,7 @@ Item {
             }
             Text {
                 text: clock.timeStr.slice(-2)
-                color: clock.defaultTimeColor
+                color: clock.timeColor
                 font.pixelSize: 200
                 font.family: clock.fontFamily
                 font.weight: Font.Bold
