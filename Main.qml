@@ -35,13 +35,11 @@ Rectangle {
       var value = (typeof config !== "undefined" && config !== null) ? config[key] : undefined;
 
       if (value === undefined || value === null || String(value).trim() === "") {
-        console.warn("[theme] '" + key + "' undefined at theme.conf, using " + fallback);
         return fallback;
       }
 
       var str = String(value).trim();
       if (!/^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(str)) {
-        console.warn("[theme] '" + key  + "' has invalid format (" + str + "), using " + fallback);
         return fallback;
       }
       return str;
@@ -82,66 +80,68 @@ Rectangle {
         transparentBorder: false
     }
 
-    Column {
-        id: leftContainer
-        anchors.left: parent.left
-        anchors.leftMargin: 80
-        anchors.verticalCenter: parent.verticalCenter
-        spacing: 24
+    // Clock + Login Form, centrados en la pantalla
+    RowLayout {
+        id: centerContainer
+        anchors.centerIn: parent
+        spacing: 80
 
-        Clock {
-            id: mainClock
-            anchors.horizontalCenter: parent.horizontalCenter
-            backgroundSource: config.background
-            fontFamily: root.rubikBoldFont
-            timeColor: root.txtPrimaryColor
+        // Clock + Date
+        Column {
+            id: leftContainer
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 24
+
+            Clock {
+                id: mainClock
+                anchors.horizontalCenter: parent.horizontalCenter
+                backgroundSource: config.background
+                fontFamily: root.rubikBoldFont
+                timeColor: root.txtPrimaryColor
+            }
+
+            DateLabel {
+                id: mainDate
+                anchors.horizontalCenter: parent.horizontalCenter
+                fontFamily: root.rubikMediumFont
+                bgColor: root.cardBgColor
+                textColor: root.txtPrimaryColor
+            }
         }
 
-        DateLabel {
-            id: mainDate
-            anchors.horizontalCenter: parent.horizontalCenter
-            fontFamily: root.rubikMediumFont
-            bgColor: root.cardBgColor
-            textColor: root.txtPrimaryColor
-        }
-    }
+        // Settings + Login Form
+        Column {
+            id: middleContainer
+            Layout.alignment: Qt.AlignVCenter
+            spacing: 18
 
-    // Settings + Login Form
-    Column {
-        id: middleContainer
-        anchors.left: leftContainer.right
-        anchors.leftMargin: 50
-        anchors.verticalCenter: parent.verticalCenter
-        spacing: 18
+            Text {
+                id: settingsLabel
+                opacity: 0.85
+                text: "SETTINGS"
+                color: root.txtPrimaryColor
+                font.pixelSize: 16
+                font.weight: Font.Medium
+                font.family: root.rubikMediumFont
+            }
 
-        Text {
-            id: settingsLabel
-            opacity: 0.85
-            text: "SETTINGS"
-            color: root.txtPrimaryColor
-            font.pixelSize: 16
-            font.weight: Font.Medium
-            font.family: root.rubikMediumFont
-        }
+            LoginForm {
+                id: loginForm
+                accentColor: root.accentColor
+                cardBgColor: root.cardBgColor
 
-        LoginForm {
-            id: loginForm
-            accentColor: root.accentColor
-            cardBgColor: root.cardBgColor
-            
-            inputBgColor: root.inputBgColor
-            inputBorderColor: root.inputBorderColor
-            inputBorderActiveColor: root.inputBorderActiveColor
-            placeholderColor: root.placeholderColor
-            
-            btnPrimaryBgColor: root.btnPrimaryBgColor
-            btnSecondaryBgColor: root.btnSecondaryBgColor
-            
-            textPrimaryColor: root.txtSecondaryColor
-            textSecondaryColor: root.txtTertiaryColor
-            warningColor: root.warnColor
+                inputBgColor: root.inputBgColor
+                inputBorderColor: root.inputBorderColor
+                inputBorderActiveColor: root.inputBorderActiveColor
+                placeholderColor: root.placeholderColor
 
+                btnPrimaryBgColor: root.btnPrimaryBgColor
+                btnSecondaryBgColor: root.btnSecondaryBgColor
 
+                textPrimaryColor: root.txtSecondaryColor
+                textSecondaryColor: root.txtTertiaryColor
+                warningColor: root.warnColor
+            }
         }
     }
 }

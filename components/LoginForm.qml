@@ -21,10 +21,28 @@ Item {
 
     property int userIndex: 0
     property bool isLoggingIn: false
+    property int sessionIndex: 0
+    property var sessionNames: []
 
     Component.onCompleted: {
         if (typeof userModel !== "undefined" && userModel.lastIndex >= 0)
             userIndex = userModel.lastIndex;
+        if (typeof sessionModel !== "undefined" && sessionModel.lastIndex >= 0)
+            sessionIndex = sessionModel.lastIndex;
+    }
+
+    // Saves the real name of each session
+    Repeater {
+        model: (typeof sessionModel !== "undefined") ? sessionModel : null
+
+        delegate: Item {
+            visible: false
+            Component.onCompleted: {
+                var arr = container.sessionNames.slice();
+                arr[index] = model.name;
+                container.sessionNames = arr;
+            }
+        }
     }
 
     function cleanName(name) {
@@ -41,6 +59,11 @@ Item {
         return s.charAt(0).toUpperCase() + s.slice(1);
     }
 
+    function sessionName(i) {
+        var n = container.sessionNames[i];
+        return (n && String(n).trim() !== "") ? String(n).trim() : "Session";
+    }
+
     function getCurrentUserName() {
         if (typeof userModel !== "undefined" && userModel.count > 0) {
             var idx = container.userIndex;
@@ -52,7 +75,7 @@ Item {
             var finalName = display ? display.toString() : (realName ? realName.toString() : (nr ? nr.toString() : (edit ? edit.toString() : "User")));
             return cleanName(finalName);
         }
-        return cleanName(typeof sddm !== "undefined" && sddm.lastUser ? sddm.lastUser : "USUARIO");
+        return cleanName(typeof sddm !== "undefined" && sddm.lastUser ? sddm.lastUser : "USER");
     }
 
     function doLogin() {
@@ -88,7 +111,7 @@ Item {
         var pass = passwordField.text;
 
         if (typeof sddm !== "undefined") {
-            sddm.login(user.trim(), pass, 0);
+            sddm.login(user.trim(), pass, container.sessionIndex);
         }
         loginTimeout.start();
     }
@@ -170,21 +193,31 @@ Item {
                 onAccepted: container.doLogin()
             }
 
-            // Indicator when Num Lock is activated
-            Text {
-                id: numLockIndicator
-                text: "NUM LOCK ACTIVATED"
-                color: container.warningColor
-                font.pixelSize: 10
-                font.bold: true
-                font.letterSpacing: 1
-                Layout.alignment: Qt.AlignHCenter
-                visible: typeof keyboard !== "undefined" && typeof keyboard.numLock !== "undefined" && keyboard.numLock
+            // Indicator for Caps Lock / Num Lock
+            Item {
+                id: lockIndicator
+                Layout.fillWidth: true
+                Layout.preferredHeight: 12
+
+                readonly property bool capsOn: typeof keyboard !== "undefined" && keyboard.capsLock === true
+                readonly property bool numOn: typeof keyboard !== "undefined" && keyboard.numLock === true
+
+                Text {
+                    anchors.centerIn: parent
+                    visible: lockIndicator.capsOn || lockIndicator.numOn
+                    text: (lockIndicator.capsOn && lockIndicator.numOn)
+                          ? "CAPS LOCK  ·  NUM LOCK ACTIVATED"
+                          : (lockIndicator.capsOn ? "CAPS LOCK ACTIVATED" : "NUM LOCK ACTIVATED")
+                    color: container.warningColor
+                    font.pixelSize: 10
+                    font.bold: true
+                    font.letterSpacing: 1
+                }
             }
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 12
+                spacing: 8
 
                 Button {
                     id: anotherUserButton
@@ -208,6 +241,32 @@ Item {
                     }
 
                     onClicked: userPopup.open()
+                }
+
+                // Session selector (dropdown)
+                Button {
+                    id: sessionButton
+                    Layout.preferredWidth: 96
+                    Layout.preferredHeight: 42
+                    visible: typeof sessionModel !== "undefined" && sessionModel.count > 1
+
+                    contentItem: Text {
+                        text: container.sessionName(container.sessionIndex).toUpperCase()
+                        color: container.textSecondaryColor
+                        font.pixelSize: 11
+                        font.bold: true
+                        font.letterSpacing: 1
+                        elide: Text.ElideRight
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    background: Rectangle {
+                        color: sessionButton.pressed ? Qt.darker(container.btnSecondaryBgColor, 1.2) : container.btnSecondaryBgColor
+                        radius: sessionButton.height / 2
+                    }
+
+                    onClicked: sessionPopup.open()
                 }
 
                 Button {
@@ -287,6 +346,54 @@ Item {
                 onClicked: {
                     container.userIndex = index;
                     userPopup.close();
+                }
+            }
+        }
+    }
+
+    Popup {
+        id: sessionPopup
+        width: 260
+        height: (typeof sessionModel !== "undefined") ? Math.min(200, sessionModel.count * 40 + 20) : 100
+        x: (parent ? (parent.width - width) / 2 : 0)
+        y: (parent ? (parent.height - height) / 2 : 0)
+        modal: true
+        focus: true
+
+        background: Rectangle {
+            color: container.cardBgColor
+            radius: 14
+            border.color: container.inputBorderColor
+            border.width: 1
+        }
+
+        ListView {
+            anchors.fill: parent
+            anchors.margins: 10
+            model: (typeof sessionModel !== "undefined") ? sessionModel : null
+            spacing: 5
+            clip: true
+
+            delegate: ItemDelegate {
+                width: parent.width
+                height: 35
+
+                background: Rectangle {
+                    color: index === container.sessionIndex ? container.btnPrimaryBgColor : "transparent"
+                    radius: 8
+                }
+
+                contentItem: Text {
+                    text: model.name
+                    color: container.textPrimaryColor
+                    font.pixelSize: 13
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+                }
+
+                onClicked: {
+                    container.sessionIndex = index;
+                    sessionPopup.close();
                 }
             }
         }
